@@ -1,6 +1,6 @@
 # Family Calendar — Phase 1 Task List
 
-Status: **v1.0 — approved 2026-11-23**. Every task, including T01, is built by G.O.A.T. AI (D-01): each becomes one GitHub issue (`goat.py add`) once the repo exists and the owner says so.
+Status: **v1.0 — approved 2026-11-23**. Every task, including T01, is built by G.O.A.T. AI on autopilot (D-01). Each task is one GitHub issue with the same number: **T01 = #1 … T20 = #20** in [Alseals1/family-calendar-app](https://github.com/Alseals1/family-calendar-app/issues). The issue's "Depends on" line is the source of truth for order; T20 is done by a person.
 
 Every task is test-first (see [plan.md §6](plan.md#6-testing-strategy-tdd)): the **Tests first** list is written and committed failing before any implementation code. "Gate" marks items G.O.A.T. always gates (migration, auth/permissions, new dependency, CI).
 
