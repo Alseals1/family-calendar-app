@@ -8,8 +8,6 @@ Stack: Next.js (App Router, TypeScript strict), Tailwind CSS, shadcn/ui, Lucide,
 
 ## Commands
 
-> Created by task T01. Until then these do not exist.
-
 ```sh
 npm run dev               # Next.js dev server
 npm run build
