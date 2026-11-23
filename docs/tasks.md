@@ -142,6 +142,7 @@ Sizes follow G.O.A.T.: S, M, L (stacked PRs), XL (split first).
 - **Depends on:** T19, owner creates the hosted Supabase project and Vercel project
 - **Scope:** apply migrations to the hosted project, set Vercel env vars, set Supabase auth redirect URLs and Resend SMTP (D-02), smoke test in production.
 - **Note:** agents never run commands against a hosted project; the owner runs or approves each step.
+- **Phase 1 close-out:** remove the "Phase 1 questions" section from `CLAUDE.md` and stop Claude's question watcher. From then on the owner answers G.O.A.T. questions again.
 
 ## Order and parallel work
 

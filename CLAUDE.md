@@ -68,3 +68,13 @@ All Phase 1 issues in this repo are worked by G.O.A.T. AI **on autopilot**: agen
 - **Decisions:** PRD section 11 is the decision log. Build only on decisions marked **Decided**. Anything the docs leave open (a product rule, an account, money, a licence, a design call) is a question for the owner, not something to guess.
 - **Local services:** all agents share one local Supabase stack on this machine. Run `npx supabase start` if it is not running; never stop it, and never change its ports or project id.
 - **Never deploy:** no `vercel` commands, no hosted Supabase changes, no secrets. A person does T20.
+
+### Phase 1 questions (temporary rule — removed when Phase 1 is complete)
+
+During Phase 1 the owner has asked **Claude, the owner's assistant session, to answer G.O.A.T. questions on the owner's behalf.**
+
+- **How to ping:** ask exactly as protocol section 7 says: post a `question` and release with `--goat-status answer-question`. That label is the ping; Claude checks for it every few minutes.
+- **Use `question`, not `chat`.** Claude cannot join a live chat. Put everything in one question: the options, your recommendation and why, and the doc sections that bear on it (`docs/prd.md`, `docs/plan.md`, `docs/tasks.md`).
+- **Answers** are posted on the issue under the owner's GitHub login and start with "**Answer from Claude for the owner (Phase 1 rule).**" Treat them as the owner's answer. A new product decision is also added to the decision log in `docs/prd.md` section 11.
+- **What Claude passes to the owner instead:** money or a paid plan, creating an account or connecting a service, licences or legal questions, changing a Decided decision or the Phase 1 scope, and anything that weakens privacy or security. For those, the issue waits for the owner.
+
