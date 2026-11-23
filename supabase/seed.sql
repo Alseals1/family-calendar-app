@@ -1,0 +1,2 @@
+-- Local sample family placeholder. Made-up data only, never real people.
+-- Filled in by a later task, once the schema exists (T03).
