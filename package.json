@@ -10,8 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:db": "node -e \"console.log('test:db: no database yet. Set up in T02 (#2).')\"",
-    "test:integration": "node -e \"console.log('test:integration: no Supabase yet. Set up in T02 (#2).')\"",
+    "test:db": "supabase test db",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
