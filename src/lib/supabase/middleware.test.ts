@@ -12,7 +12,10 @@ vi.mock("@supabase/ssr", () => ({
 
 type Adapter = {
   getAll: () => unknown;
-  setAll: (cookies: { name: string; value: string; options?: object }[]) => void;
+  setAll: (
+    cookies: { name: string; value: string; options?: object }[],
+    headers?: Record<string, string>,
+  ) => void;
 };
 
 beforeEach(() => {
@@ -42,5 +45,25 @@ describe("updateSession", () => {
     const response = await updateSession(request);
     expect(response.cookies.get("sb-token")?.value).toBe("fresh");
     expect(request.cookies.get("sb-token")?.value).toBe("fresh");
+  });
+
+  it("sets the no-store headers that @supabase/ssr passes with refreshed cookies", async () => {
+    const headers = {
+      "Cache-Control": "private, no-cache, no-store, must-revalidate, max-age=0",
+      Expires: "0",
+      Pragma: "no-cache",
+    };
+    vi.mocked(getUser).mockImplementationOnce(async () => {
+      const call = vi.mocked(createServerClient).mock.calls[0];
+      (call[2] as { cookies: Adapter }).cookies.setAll(
+        [{ name: "sb-token", value: "fresh" }],
+        headers,
+      );
+      return { data: { user: null }, error: null };
+    });
+    const response = await updateSession(new NextRequest("http://localhost:3100/"));
+    expect(response.headers.get("cache-control")).toBe(headers["Cache-Control"]);
+    expect(response.headers.get("expires")).toBe("0");
+    expect(response.headers.get("pragma")).toBe("no-cache");
   });
 });
