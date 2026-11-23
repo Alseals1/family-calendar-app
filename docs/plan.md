@@ -1,6 +1,6 @@
 # Family Calendar — Technical Plan (Phase 1)
 
-Status: **Draft v0.2**. Pairs with [prd.md](prd.md) and [tasks.md](tasks.md). Decision IDs (D-xx) are in PRD section 11.
+Status: **v1.0 — approved 2026-11-23**. Pairs with [prd.md](prd.md) and [tasks.md](tasks.md). Decision IDs (D-xx) are in PRD section 11.
 
 ## 1. Current state
 
@@ -22,7 +22,7 @@ The project folder was empty on 2026-11-23. No git repo, no code. Tools on the d
 | CI | GitHub Actions: lint, typecheck, unit, db tests, e2e | Free minutes; needs the repo first |
 | Package manager | npm | |
 
-Listing these here is the request to approve them as Phase 1 dependencies (G.O.A.T. treats every new dependency as a gate item). Anything not on this list needs a separate approval.
+The owner approved these as the Phase 1 dependencies on 2026-11-23 (G.O.A.T. treats every new dependency as a gate item, so the plan for each issue should still name the ones it adds). Anything **not** on this list is a question for the owner before it is added.
 
 ## 3. Architecture
 

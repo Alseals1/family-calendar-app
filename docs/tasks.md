@@ -1,6 +1,6 @@
 # Family Calendar — Phase 1 Task List
 
-Status: **Draft v0.2**. Every task, including T01, is built by G.O.A.T. AI (D-01): each becomes one GitHub issue (`goat.py add`) once the repo exists and the owner says so.
+Status: **v1.0 — approved 2026-11-23**. Every task, including T01, is built by G.O.A.T. AI (D-01): each becomes one GitHub issue (`goat.py add`) once the repo exists and the owner says so.
 
 Every task is test-first (see [plan.md §6](plan.md#6-testing-strategy-tdd)): the **Tests first** list is written and committed failing before any implementation code. "Gate" marks items G.O.A.T. always gates (migration, auth/permissions, new dependency, CI).
 
