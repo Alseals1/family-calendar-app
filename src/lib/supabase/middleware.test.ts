@@ -14,7 +14,7 @@ type Adapter = {
   getAll: () => unknown;
   setAll: (
     cookies: { name: string; value: string; options?: object }[],
-    headers?: Record<string, string>,
+    headers: Record<string, string>,
   ) => void;
 };
 
@@ -39,7 +39,7 @@ describe("updateSession", () => {
     const request = new NextRequest("http://localhost:3100/");
     vi.mocked(getUser).mockImplementationOnce(async () => {
       const call = vi.mocked(createServerClient).mock.calls[0];
-      (call[2] as { cookies: Adapter }).cookies.setAll([{ name: "sb-token", value: "fresh" }]);
+      (call[2] as { cookies: Adapter }).cookies.setAll([{ name: "sb-token", value: "fresh" }], {});
       return { data: { user: null }, error: null };
     });
     const response = await updateSession(request);

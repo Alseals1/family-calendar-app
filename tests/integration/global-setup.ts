@@ -1,16 +1,20 @@
 import { execFileSync } from "node:child_process";
 
 const NOT_RUNNING = "Local Supabase is not running. Start it with: npx supabase start";
+const CLI_FAILED =
+  "Could not read `supabase status`. Is the stack running (npx supabase start), and is Supabase CLI 2.75+ first on PATH?";
 
 function readStatusEnv(): Record<string, string> {
   let output: string;
   try {
     output = execFileSync("supabase", ["status", "-o", "env"], {
       encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
+      stdio: ["ignore", "pipe", "pipe"],
     });
-  } catch {
-    throw new Error(NOT_RUNNING);
+  } catch (error) {
+    // Only stderr is reported: stdout holds the keys.
+    const stderr = (error as { stderr?: string }).stderr?.toString().trim();
+    throw new Error(stderr ? `${CLI_FAILED}\nCLI said: ${stderr}` : CLI_FAILED);
   }
   const values: Record<string, string> = {};
   for (const line of output.split("\n")) {

@@ -16,12 +16,15 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, headers) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options),
         );
+        // Cache-Control: no-store and friends. Without them a CDN could cache the
+        // Set-Cookie response and serve one adult's session to another.
+        Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
       },
     },
   });
