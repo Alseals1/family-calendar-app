@@ -11,7 +11,7 @@ const runId = randomBytes(4).toString("hex");
 
 export type TestClient = SupabaseClient<Database>;
 export type TestUser = { id: string; client: TestClient };
-export type Families = { f1: string; f2: string; k1: string };
+export type Families = { f1: string; f2: string; k1: string; invitation: string };
 
 function url(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -47,14 +47,17 @@ function sqlUuid(id: string): string {
 }
 
 /**
- * F1: owned by `a`, with adults `a` and `b` and a child K1.
+ * F1: owned by `a`, with adults `a` and `b`, a child K1 and a pending invitation.
  * F2: owned by `c`, with adult `c`.
  */
 export function createFamilies({ a, b, c }: { a: string; b: string; c: string }): Families {
   const f1 = randomUUID();
   const f2 = randomUUID();
   const k1 = randomUUID();
-  const [A, B, C, F1, F2, K1] = [a, b, c, f1, f2, k1].map(sqlUuid);
+  const invitation = randomUUID();
+  const [A, B, C, F1, F2, K1, I1] = [a, b, c, f1, f2, k1, invitation].map(sqlUuid);
+  // A made-up token hash: 64 lowercase hex characters, never a real link.
+  const tokenHash = randomBytes(32).toString("hex");
   runLocalSql(`
     begin;
     insert into public.families (id, name, created_by) values
@@ -65,9 +68,11 @@ export function createFamilies({ a, b, c }: { a: string; b: string; c: string })
       (gen_random_uuid(), ${F1}, ${B}, 'Sam', 'adult', '#2b3c4d'),
       (${K1}, ${F1}, null, 'Kid One', 'child', '#3c4d5e'),
       (gen_random_uuid(), ${F2}, ${C}, 'Jordan', 'adult', '#4d5e6f');
+    insert into public.family_invitations (id, family_id, invited_email, invited_by, invitation_token_hash) values
+      (${I1}, ${F1}, 'casey.${runId}@example.test', ${A}, '${tokenHash}');
     commit;
   `);
-  return { f1, f2, k1 };
+  return { f1, f2, k1, invitation };
 }
 
 /** Deletes the families (their members, events and invitations cascade), then the users. */
