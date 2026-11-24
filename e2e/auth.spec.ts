@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { AUTH_COPY } from "../src/lib/copy";
 import { confirmPathFor } from "./helpers/mailpit";
 import {
@@ -8,6 +8,11 @@ import {
   TEST_PASSWORD,
   uniqueEmail,
 } from "./helpers/users";
+
+// Next.js adds its own empty role="alert" route announcer, so match by text.
+async function expectAlert(page: Page, text: string) {
+  await expect(page.getByRole("alert").filter({ hasText: text })).toHaveText(text);
+}
 
 test("register, confirm through the email, and land on onboarding", async ({ page }) => {
   const email = uniqueEmail("register");
@@ -40,7 +45,7 @@ test("a wrong password shows an error and stays on /login", async ({ page }) => 
   const { email } = await registerAndConfirm(page, "wrongpw");
   await page.getByRole("button", { name: AUTH_COPY.logoutLabel }).click();
   await logIn(page, email, "not-the-password");
-  await expect(page.getByRole("alert")).toHaveText(AUTH_COPY.invalidCredentials);
+  await expectAlert(page, AUTH_COPY.invalidCredentials);
   await expect(page).toHaveURL(/\/login$/);
 });
 
@@ -48,14 +53,14 @@ test("an unconfirmed account cannot log in", async ({ page }) => {
   const email = uniqueEmail("unconfirmed");
   await fillRegister(page, email);
   await logIn(page, email, TEST_PASSWORD);
-  await expect(page.getByRole("alert")).toHaveText(AUTH_COPY.emailNotConfirmed);
+  await expectAlert(page, AUTH_COPY.emailNotConfirmed);
   await expect(page).toHaveURL(/\/login$/);
 });
 
 test("a bad confirmation link shows an error on /login", async ({ page }) => {
   await page.goto("/auth/confirm?token_hash=bad&type=email");
   await expect(page).toHaveURL(/\/login\?error=confirm$/);
-  await expect(page.getByRole("alert")).toHaveText(AUTH_COPY.confirmInvalid);
+  await expectAlert(page, AUTH_COPY.confirmInvalid);
 });
 
 test("a signed-in visit to /login is sent on to onboarding", async ({ page }) => {
