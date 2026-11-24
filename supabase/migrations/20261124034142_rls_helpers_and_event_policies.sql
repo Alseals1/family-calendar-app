@@ -12,9 +12,10 @@
 
 grant usage on schema private to authenticated;
 
--- Any function added to `private` later is not executable by public unless
--- a migration grants it explicitly.
-alter default privileges in schema private revoke execute on functions from public;
+-- Postgres grants EXECUTE on every new function to PUBLIC, and a per-schema
+-- default-privileges revoke cannot undo that. So every new function in
+-- `private` must `revoke execute ... from public, anon, authenticated` (as T03
+-- does), then grant only what it needs. 04_rls_helpers enforces this.
 
 -- ---------------------------------------------------------------------------
 -- Helper functions
