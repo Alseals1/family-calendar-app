@@ -133,6 +133,8 @@ They live in the `private` schema: `authenticated` may use it and execute these 
 | event_assignments | `exists (select 1 from events where id = event_id)` (inherits the events policy, so private assignments stay hidden) | caller can update the event | — | caller can update the event |
 | storage `avatars` | family adults | path prefix = own family id | same | same |
 
+Update is column-limited for `authenticated` (anon has none): profiles `full_name`, `avatar_url`; families `name`; family_members `member_name`, `calendar_color`, `avatar_url`; family_invitations `status`. So use `update` with explicit columns on these tables, not supabase-js `upsert`. Avatar paths are `<family_id>/<file>` in the private `avatars` bucket (1 MiB, jpeg/png/webp).
+
 ### RPCs
 - `create_family(name, display_name, color) → family_id`: refuses if the caller already has a family.
 - `create_invitation(email) → raw_token`: caller must be an adult; refuses if the family is full or the email is already a member.
