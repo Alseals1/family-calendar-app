@@ -6,7 +6,7 @@
 -- C = jordan (owner, adult of F2), D = riley (no family). K1 is a child in F1.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(37);
+select plan(38);
 
 -- ---------------------------------------------------------------------------
 -- Structure
@@ -68,6 +68,16 @@ select ok(not has_function_privilege('authenticated', 'private.handle_new_user()
   'authenticated cannot execute private.handle_new_user');
 select ok(not has_function_privilege('authenticated', 'private.prevent_event_owner_change()', 'execute'),
   'authenticated cannot execute private.prevent_event_owner_change');
+
+-- Catch-all: a function added to `private` later must revoke execute itself.
+select is_empty(
+  $$select p.oid::regprocedure::text
+      from pg_proc p
+     where p.pronamespace = 'private'::regnamespace
+       and p.proname not in ('is_family_adult', 'is_family_owner', 'my_family_id')
+       and (has_function_privilege('authenticated', p.oid, 'execute')
+            or has_function_privilege('anon', p.oid, 'execute'))$$,
+  'no other private function is executable by authenticated or anon');
 
 -- ---------------------------------------------------------------------------
 -- Fixtures, as postgres
