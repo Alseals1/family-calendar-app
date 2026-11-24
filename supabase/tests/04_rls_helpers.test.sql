@@ -25,13 +25,13 @@ select volatility_is('private', 'is_family_owner', array['uuid'], 'stable', 'is_
 select volatility_is('private', 'my_family_id', array[]::name[], 'stable', 'my_family_id is stable');
 
 select ok(
-  'search_path=""' = any((select proconfig from pg_proc where oid = 'private.is_family_adult(uuid)'::regprocedure)),
+  (select 'search_path=""' = any(proconfig) from pg_proc where oid = 'private.is_family_adult(uuid)'::regprocedure),
   'is_family_adult sets an empty search_path');
 select ok(
-  'search_path=""' = any((select proconfig from pg_proc where oid = 'private.is_family_owner(uuid)'::regprocedure)),
+  (select 'search_path=""' = any(proconfig) from pg_proc where oid = 'private.is_family_owner(uuid)'::regprocedure),
   'is_family_owner sets an empty search_path');
 select ok(
-  'search_path=""' = any((select proconfig from pg_proc where oid = 'private.my_family_id()'::regprocedure)),
+  (select 'search_path=""' = any(proconfig) from pg_proc where oid = 'private.my_family_id()'::regprocedure),
   'my_family_id sets an empty search_path');
 
 -- ---------------------------------------------------------------------------
