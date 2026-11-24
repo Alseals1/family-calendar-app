@@ -9,7 +9,263 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      event_assignments: {
+        Row: {
+          event_id: string
+          family_id: string
+          family_member_id: string
+          id: string
+        }
+        Insert: {
+          event_id: string
+          family_id: string
+          family_member_id: string
+          id?: string
+        }
+        Update: {
+          event_id?: string
+          family_id?: string
+          family_member_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_assignments_event_fk"
+            columns: ["event_id", "family_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "family_id"]
+          },
+          {
+            foreignKeyName: "event_assignments_member_fk"
+            columns: ["family_member_id", "family_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id", "family_id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          calendar_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string
+          family_id: string
+          id: string
+          is_all_day: boolean
+          location: string | null
+          start_time: string
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          calendar_type: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time: string
+          family_id: string
+          id?: string
+          is_all_day?: boolean
+          location?: string | null
+          start_time: string
+          title: string
+          updated_at?: string
+          visibility: string
+        }
+        Update: {
+          calendar_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          family_id?: string
+          id?: string
+          is_all_day?: boolean
+          location?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      families: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "families_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          invitation_token_hash: string
+          invited_by: string
+          invited_email: string
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          invitation_token_hash: string
+          invited_by: string
+          invited_email: string
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          invitation_token_hash?: string
+          invited_by?: string
+          invited_email?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invitations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_members: {
+        Row: {
+          avatar_url: string | null
+          calendar_color: string
+          created_at: string
+          family_id: string
+          id: string
+          member_name: string
+          member_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          calendar_color: string
+          created_at?: string
+          family_id: string
+          id?: string
+          member_name: string
+          member_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          calendar_color?: string
+          created_at?: string
+          family_id?: string
+          id?: string
+          member_name?: string
+          member_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
