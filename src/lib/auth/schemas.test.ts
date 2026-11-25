@@ -4,8 +4,10 @@ import {
   confirmParamsSchema,
   emailSchema,
   fieldErrors,
+  forgotPasswordSchema,
   fullNameSchema,
   loginSchema,
+  newPasswordSchema,
   registerSchema,
 } from "./schemas";
 
@@ -77,14 +79,15 @@ describe("loginSchema", () => {
 });
 
 describe("confirmParamsSchema", () => {
-  it("accepts the email and signup types", () => {
+  it("accepts the email, signup and recovery types", () => {
     expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "email" }).success).toBe(true);
     expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "signup" }).success).toBe(true);
+    expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "recovery" }).success).toBe(true);
   });
 
-  it("rejects recovery and magiclink", () => {
-    expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "recovery" }).success).toBe(false);
+  it("rejects magiclink and other types", () => {
     expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "magiclink" }).success).toBe(false);
+    expect(confirmParamsSchema.safeParse({ token_hash: "abc", type: "invite" }).success).toBe(false);
   });
 
   it("rejects a missing or empty token_hash", () => {
@@ -112,5 +115,46 @@ describe("fieldErrors", () => {
   it("uses the login password message", () => {
     const errors = fieldErrors(loginSchema.safeParse({ email: "pat@example.test", password: "" }));
     expect(errors).toEqual({ password: AUTH_COPY.passwordRequired });
+  });
+});
+
+describe("forgotPasswordSchema", () => {
+  it("accepts a valid email", () => {
+    expect(forgotPasswordSchema.safeParse({ email: "pat@example.test" }).success).toBe(true);
+  });
+
+  it("trims and lower-cases the email", () => {
+    expect(forgotPasswordSchema.parse({ email: "  Pat@Example.TEST " }).email).toBe("pat@example.test");
+  });
+
+  it("rejects a malformed email", () => {
+    const result = forgotPasswordSchema.safeParse({ email: "nope" });
+    expect(fieldErrors(result).email).toBe(AUTH_COPY.emailInvalid);
+  });
+
+  it("rejects an email of 255 characters", () => {
+    const email = `${"a".repeat(255 - "@example.test".length)}@example.test`;
+    expect(forgotPasswordSchema.safeParse({ email }).success).toBe(false);
+  });
+});
+
+describe("newPasswordSchema", () => {
+  it("rejects 7 characters with the too-short message", () => {
+    const result = newPasswordSchema.safeParse({ password: "a".repeat(7) });
+    expect(fieldErrors(result).password).toBe(AUTH_COPY.passwordTooShort);
+  });
+
+  it("accepts 8 and 72 characters", () => {
+    expect(newPasswordSchema.safeParse({ password: "a".repeat(8) }).success).toBe(true);
+    expect(newPasswordSchema.safeParse({ password: "a".repeat(72) }).success).toBe(true);
+  });
+
+  it("rejects 73 characters with the too-long message", () => {
+    const result = newPasswordSchema.safeParse({ password: "a".repeat(73) });
+    expect(fieldErrors(result).password).toBe(AUTH_COPY.passwordTooLong);
+  });
+
+  it("rejects a missing password", () => {
+    expect(newPasswordSchema.safeParse({}).success).toBe(false);
   });
 });

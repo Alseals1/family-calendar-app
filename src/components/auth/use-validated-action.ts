@@ -5,7 +5,7 @@ import type { z } from "zod";
 import { fieldErrors } from "@/lib/auth/schemas";
 import { IDLE_STATE, type AuthFormState } from "@/lib/auth/form-state";
 
-type Action = (prev: AuthFormState, formData: FormData) => Promise<AuthFormState>;
+export type Action = (prev: AuthFormState, formData: FormData) => Promise<AuthFormState>;
 type Field = "fullName" | "email" | "password";
 
 /**

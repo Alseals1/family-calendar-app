@@ -20,14 +20,21 @@ export const emailSchema = z
   .max(EMAIL_MAX, AUTH_COPY.emailTooLong)
   .pipe(z.email(AUTH_COPY.emailInvalid));
 
+/** The rule for choosing a password: sign-up, password reset and (later) Settings. */
+export const passwordSchema = z
+  .string({ error: AUTH_COPY.passwordTooShort })
+  .min(PASSWORD_MIN, AUTH_COPY.passwordTooShort)
+  .max(PASSWORD_MAX, AUTH_COPY.passwordTooLong);
+
 export const registerSchema = z.object({
   fullName: fullNameSchema,
   email: emailSchema,
-  password: z
-    .string({ error: AUTH_COPY.passwordTooShort })
-    .min(PASSWORD_MIN, AUTH_COPY.passwordTooShort)
-    .max(PASSWORD_MAX, AUTH_COPY.passwordTooLong),
+  password: passwordSchema,
 });
+
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+
+export const newPasswordSchema = z.object({ password: passwordSchema });
 
 export const loginSchema = z.object({
   email: emailSchema,
@@ -36,14 +43,16 @@ export const loginSchema = z.object({
     .min(1, AUTH_COPY.passwordRequired),
 });
 
-/** Query parameters of /auth/confirm. T06 adds the password-reset type. */
+/** Query parameters of /auth/confirm: email confirmation links and password-reset links. */
 export const confirmParamsSchema = z.object({
   token_hash: z.string().min(1),
-  type: z.enum(["email", "signup"]),
+  type: z.enum(["email", "signup", "recovery"]),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type NewPasswordInput = z.infer<typeof newPasswordSchema>;
 
 /** First message per field, or an empty object when the parse succeeded. */
 export function fieldErrors<T extends Record<string, unknown>>(
