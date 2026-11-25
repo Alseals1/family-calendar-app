@@ -1,12 +1,21 @@
-import { CalendarDays } from "lucide-react";
-import { APP_DESCRIPTION, APP_NAME } from "@/lib/copy";
+import { redirect } from "next/navigation";
+import { hasFamily } from "@/lib/auth/family";
+import { LOGIN_PATH, postAuthPath } from "@/lib/auth/redirects";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
-  return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-3 p-6 text-center">
-      <CalendarDays aria-hidden="true" className="size-12 text-primary" />
-      <h1 className="text-3xl font-semibold tracking-tight">{APP_NAME}</h1>
-      <p className="text-muted-foreground">{APP_DESCRIPTION}</p>
-    </main>
-  );
+/**
+ * Always rendered per request: the landing page depends on the visitor's
+ * session, so it must never be prerendered at build time.
+ */
+export const dynamic = "force-dynamic";
+
+/** Renders nothing: it only picks the landing page for the signed-in user. */
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  // The proxy already sends signed-out visitors to /login; this is the backstop.
+  if (!user) redirect(LOGIN_PATH);
+  redirect(postAuthPath({ hasFamily: await hasFamily(supabase, user.id) }));
 }

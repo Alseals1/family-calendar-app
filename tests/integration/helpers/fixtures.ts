@@ -28,17 +28,28 @@ export function anonClient(): TestClient {
   });
 }
 
-/** Signs up a new local user (email confirmations are off locally) and returns its signed-in client. */
+/**
+ * Signs up a new local user and returns its signed-in client. Local email
+ * confirmations are on (AUTH-7), so sign-up returns no session: the address is
+ * confirmed with local SQL (no service-role key), then the user signs in.
+ */
 export async function createUser(label: string): Promise<TestUser> {
   const client = anonClient();
+  const email = `${label}.${runId}@example.test`;
+  const password = randomBytes(18).toString("base64url");
   const { data, error } = await client.auth.signUp({
-    email: `${label}.${runId}@example.test`,
-    password: randomBytes(18).toString("base64url"),
+    email,
+    password,
     options: { data: { full_name: `${label} example` } },
   });
   if (error) throw error;
-  if (!data.user || !data.session) throw new Error(`Sign-up for ${label} returned no session`);
-  return { id: data.user.id, client };
+  if (!data.user) throw new Error(`Sign-up for ${label} returned no user`);
+  const id = data.user.id;
+  runLocalSql(`update auth.users set email_confirmed_at = now() where id = ${sqlUuid(id)};`);
+  const signedIn = await client.auth.signInWithPassword({ email, password });
+  if (signedIn.error) throw signedIn.error;
+  if (!signedIn.data.session) throw new Error(`Sign-in for ${label} returned no session`);
+  return { id, client };
 }
 
 function sqlUuid(id: string): string {

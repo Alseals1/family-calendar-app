@@ -1,2 +1,33 @@
 export const APP_NAME = "Family Calendar";
 export const APP_DESCRIPTION = "A private calendar for your family.";
+
+export const AUTH_COPY = {
+  registerTitle: "Create your account",
+  loginTitle: "Log in",
+  fullNameLabel: "Full name",
+  emailLabel: "Email",
+  passwordLabel: "Password",
+  registerSubmit: "Create account",
+  registerPending: "Creating account…",
+  loginSubmit: "Log in",
+  loginPending: "Logging in…",
+  nameRequired: "Enter your name.",
+  nameTooLong: "Use 100 characters or fewer.",
+  emailInvalid: "Enter a valid email address.",
+  emailTooLong: "Use 254 characters or fewer.",
+  passwordTooShort: "Use at least 8 characters.",
+  passwordTooLong: "Use 72 characters or fewer.",
+  passwordRequired: "Enter your password.",
+  registerFailed: "We could not create the account. Try again.",
+  checkEmailTitle: "Check your email",
+  checkEmailBody: "If this address can be registered, we sent a confirmation link to",
+  invalidCredentials: "Email or password is incorrect.",
+  emailNotConfirmed: "Confirm your email first.",
+  loginFailed: "We could not log you in. Try again.",
+  confirmInvalid: "That confirmation link is invalid or expired.",
+  haveAccount: "Already have an account?",
+  noAccount: "New here?",
+  onboardingHeading: "Set up your family",
+  calendarHeading: "Calendar",
+  logoutLabel: "Log out",
+} as const;
