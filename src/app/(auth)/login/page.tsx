@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/login-form";
-import { confirmErrorMessage, REGISTER_PATH } from "@/lib/auth/redirects";
+import {
+  confirmErrorMessage,
+  FORGOT_PASSWORD_PATH,
+  loginNoticeMessage,
+  REGISTER_PATH,
+} from "@/lib/auth/redirects";
 import { AUTH_COPY } from "@/lib/copy";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  const { error } = await searchParams;
+  const { error, reset } = await searchParams;
   const confirmError = confirmErrorMessage(typeof error === "string" ? error : undefined);
+  const notice = loginNoticeMessage(typeof reset === "string" ? reset : undefined);
 
   return (
     <div className="flex flex-col gap-4">
@@ -15,7 +21,17 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
           {confirmError}
         </p>
       ) : null}
+      {notice ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {notice}
+        </p>
+      ) : null}
       <LoginForm />
+      <p className="text-center text-sm">
+        <Link href={FORGOT_PASSWORD_PATH} className="font-medium text-foreground underline">
+          {AUTH_COPY.forgotPasswordLink}
+        </Link>
+      </p>
       <p className="text-center text-sm text-muted-foreground">
         {AUTH_COPY.noAccount}{" "}
         <Link href={REGISTER_PATH} className="font-medium text-foreground underline">
