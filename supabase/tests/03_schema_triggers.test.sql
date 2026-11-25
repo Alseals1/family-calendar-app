@@ -1,9 +1,12 @@
 -- T03: triggers (profile on signup, updated_at, immutable event owner) and
--- deny-all RLS: until T04 adds policies, anon and authenticated can read and
--- write nothing. Made-up people only. Fixed UUIDs as in 02_schema_constraints.
+-- deny-all RLS: anon can read and write nothing, and authenticated can read
+-- nothing in the four tables that have no policies yet. The events and
+-- event_assignments policies are tested in 05_rls_events and
+-- 06_privacy_scenarios. Made-up people only. Fixed UUIDs as in
+-- 02_schema_constraints.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(29);
+select plan(24);
 
 -- Profile on signup
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -106,7 +109,7 @@ select ok(
   and (select count(*) from public.event_assignments) > 0,
   'every table has rows before the RLS checks');
 
--- Deny-all as a signed-in adult who owns the rows
+-- Deny-all on the tables without policies, as a signed-in adult who owns the rows
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}';
 
@@ -118,21 +121,6 @@ select is((select count(*) from public.family_members), 0::bigint,
   'authenticated cannot read family_members (no policies yet)');
 select is((select count(*) from public.family_invitations), 0::bigint,
   'authenticated cannot read family_invitations (no policies yet)');
-select is((select count(*) from public.events), 0::bigint,
-  'authenticated cannot read events (no policies yet)');
-select is((select count(*) from public.event_assignments), 0::bigint,
-  'authenticated cannot read event_assignments (no policies yet)');
-select throws_ok(
-  $$insert into public.events (family_id, created_by, title, start_time, end_time, visibility, calendar_type)
-    values ('00000000-0000-0000-0000-0000000000f1', '00000000-0000-0000-0000-0000000000a1', 'Sneaky',
-            '2026-12-05 10:00+00', '2026-12-05 11:00+00', 'private', 'personal')$$,
-  '42501', null, 'authenticated cannot insert events (no policies yet)');
-select is_empty(
-  $$update public.events set title = 'x' returning id$$,
-  'authenticated cannot update events (no policies yet)');
-select is_empty(
-  $$delete from public.events returning id$$,
-  'authenticated cannot delete events (no policies yet)');
 
 -- Deny-all as a visitor who is not signed in
 set local role anon;
@@ -154,10 +142,10 @@ select throws_ok(
 
 reset role;
 
--- The rows are still there: the denied update and delete changed nothing
+-- The row is still there: the denied writes changed nothing
 select is(
   (select title from public.events where id = '00000000-0000-0000-0000-0000000000e1'),
-  'Swim lesson (moved)', 'the denied update and delete left the event as it was');
+  'Swim lesson (moved)', 'the denied writes left the event as it was');
 
 select * from finish();
 rollback;

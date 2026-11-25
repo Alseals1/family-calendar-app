@@ -65,7 +65,8 @@ select fk_ok('public', 'event_assignments', array['family_member_id', 'family_id
              'public', 'family_members', array['id', 'family_id'],
   'event_assignments (family_member_id, family_id) references family_members (id, family_id)');
 
--- RLS is on for every table, and no table has a policy yet (deny-all until T04)
+-- RLS is on for every table. T04 part 1 adds the events and assignments
+-- policies; the other four tables stay deny-all until part 2.
 select ok((select relrowsecurity from pg_class where oid = 'public.profiles'::regclass),
   'RLS is enabled on profiles');
 select ok((select relrowsecurity from pg_class where oid = 'public.families'::regclass),
@@ -83,9 +84,14 @@ select policies_are('public', 'families', array[]::name[], 'families has no poli
 select policies_are('public', 'family_members', array[]::name[], 'family_members has no policies');
 select policies_are('public', 'family_invitations', array[]::name[],
   'family_invitations has no policies');
-select policies_are('public', 'events', array[]::name[], 'events has no policies');
-select policies_are('public', 'event_assignments', array[]::name[],
-  'event_assignments has no policies');
+select policies_are('public', 'events',
+  array['events_select_visible', 'events_insert_own', 'events_update_creator_or_family',
+        'events_delete_creator_or_family'],
+  'events has exactly its T04 policies');
+select policies_are('public', 'event_assignments',
+  array['event_assignments_select_visible_event', 'event_assignments_insert_editor',
+        'event_assignments_delete_editor'],
+  'event_assignments has exactly its T04 policies');
 
 -- Triggers
 select has_trigger('auth', 'users', 'on_auth_user_created', 'auth.users has the signup trigger');
@@ -97,13 +103,13 @@ select has_trigger('public', 'events', 'events_set_updated_at', 'events has upda
 select has_trigger('public', 'events', 'events_immutable_owner',
   'events has the immutable owner trigger');
 
--- Extension and the private schema for trigger functions
+-- Extension and the private schema (trigger functions and the RLS helpers)
 select has_extension('extensions', 'citext', 'citext is installed in extensions');
 select has_schema('private', 'private schema exists');
 select ok(not has_schema_privilege('anon', 'private', 'usage'),
   'anon cannot use the private schema');
-select ok(not has_schema_privilege('authenticated', 'private', 'usage'),
-  'authenticated cannot use the private schema');
+select ok(has_schema_privilege('authenticated', 'private', 'usage'),
+  'authenticated can use the private schema (helpers only, see 04_rls_helpers)');
 
 select * from finish();
 rollback;

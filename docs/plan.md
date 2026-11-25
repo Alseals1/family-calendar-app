@@ -119,6 +119,7 @@ All primary keys are `uuid default gen_random_uuid()`. All timestamps are `times
 - `my_family_id() → uuid`.
 
 These avoid recursive RLS on `family_members`.
+They live in the `private` schema: `authenticated` may use it and execute these three helpers only, and the API does not expose it, so they are not RPCs.
 
 ### RLS policies (summary)
 
