@@ -271,7 +271,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_family: {
+        Args: { color: string; display_name: string; family_name: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
