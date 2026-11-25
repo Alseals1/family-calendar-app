@@ -77,6 +77,18 @@ describe("updateSession", () => {
     expect(response.headers.get("location")).toBe("http://localhost:3100/login");
   });
 
+  it("lets a signed-out visit to /forgot-password through", async () => {
+    const response = await updateSession(new NextRequest("http://localhost:3100/forgot-password"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("redirects a signed-out visit to /reset-password to /login", async () => {
+    const response = await updateSession(new NextRequest("http://localhost:3100/reset-password"));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("http://localhost:3100/login");
+  });
+
   it("redirects a signed-in visit to /login on to /", async () => {
     vi.mocked(getUser).mockResolvedValueOnce(signedIn);
     const response = await updateSession(new NextRequest("http://localhost:3100/login"));

@@ -13,28 +13,50 @@ async function getJson<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-/**
- * Waits for the confirmation email sent to `email` and returns the path and query of its
- * /auth/confirm link. The host is dropped: the link points at the Supabase Site URL, but
- * the e2e server runs on its own port, so the test opens the path against its baseURL.
- */
-export async function confirmPathFor(email: string): Promise<string> {
-  const deadline = Date.now() + TIMEOUT_MS;
-  let id: string | undefined;
-  while (!id) {
-    const query = encodeURIComponent(`to:"${email}"`);
-    const result = await getJson<SearchResult>(`/api/v1/search?query=${query}`);
-    id = result.messages?.[0]?.ID;
-    if (!id) {
-      if (Date.now() > deadline) throw new Error(`No email for ${email} within ${TIMEOUT_MS} ms`);
-      await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+export type AuthLinkType = "email" | "recovery";
+
+/** The /auth/confirm link in a message body whose `type` param is `type`, as path and query. */
+function confirmLinkIn(message: Message, type: AuthLinkType): string | undefined {
+  const body = `${message.HTML ?? ""}\n${message.Text ?? ""}`;
+  const links = body.match(/https?:\/\/[^\s"'<>]*\/auth\/confirm\?[^\s"'<>]+/g) ?? [];
+  for (const link of links) {
+    const url = new URL(link.replaceAll("&amp;", "&"));
+    if (url.pathname === "/auth/confirm" && url.searchParams.get("type") === type) {
+      return `${url.pathname}${url.search}`;
     }
   }
-  const message = await getJson<Message>(`/api/v1/message/${id}`);
-  const body = `${message.HTML ?? ""}\n${message.Text ?? ""}`;
-  const match = body.match(/https?:\/\/[^\s"'<>]*\/auth\/confirm\?[^\s"'<>]+/);
-  if (!match) throw new Error(`No /auth/confirm link in the email for ${email}`);
-  const url = new URL(match[0].replaceAll("&amp;", "&"));
-  if (url.pathname !== "/auth/confirm") throw new Error(`Unexpected link path ${url.pathname}`);
-  return `${url.pathname}${url.search}`;
+  return undefined;
+}
+
+/**
+ * Waits for an email sent to `email` that holds an /auth/confirm link of the given type
+ * and returns the link's path and query. An address can get several emails (confirmation,
+ * then reset), so each message is checked, newest first. The host is dropped: the link
+ * points at the Supabase Site URL, but the e2e server runs on its own port, so the test
+ * opens the path against its baseURL.
+ */
+export async function authLinkPathFor(email: string, type: AuthLinkType): Promise<string> {
+  const deadline = Date.now() + TIMEOUT_MS;
+  for (;;) {
+    const query = encodeURIComponent(`to:"${email}"`);
+    const result = await getJson<SearchResult>(`/api/v1/search?query=${query}`);
+    for (const { ID } of result.messages ?? []) {
+      const link = confirmLinkIn(await getJson<Message>(`/api/v1/message/${ID}`), type);
+      if (link) return link;
+    }
+    if (Date.now() > deadline) {
+      throw new Error(`No ${type} link in an email for ${email} within ${TIMEOUT_MS} ms`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+  }
+}
+
+/** The confirmation link from the sign-up email. */
+export function confirmPathFor(email: string): Promise<string> {
+  return authLinkPathFor(email, "email");
+}
+
+/** The link from the password-reset email. */
+export function recoveryPathFor(email: string): Promise<string> {
+  return authLinkPathFor(email, "recovery");
 }
