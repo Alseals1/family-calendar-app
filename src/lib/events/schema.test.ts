@@ -50,8 +50,9 @@ describe("eventInputSchema", () => {
   });
 
   it("defaults assignedMemberIds to []", () => {
-    const { assignedMemberIds: _omit, ...rest } = valid();
-    const r = eventInputSchema.parse(rest);
+    const withoutIds: Record<string, unknown> = valid();
+    delete withoutIds.assignedMemberIds;
+    const r = eventInputSchema.parse(withoutIds);
     expect(r.assignedMemberIds).toEqual([]);
   });
 
@@ -61,8 +62,9 @@ describe("eventInputSchema", () => {
       expect(messageFor(valid({ title: "   " }), "title")).toBe(EVENT_COPY.titleRequired);
     });
     it("rejects a missing title", () => {
-      const { title: _t, ...rest } = valid();
-      expect(messageFor(rest, "title")).toBe(EVENT_COPY.titleRequired);
+      const withoutTitle: Record<string, unknown> = valid();
+      delete withoutTitle.title;
+      expect(messageFor(withoutTitle, "title")).toBe(EVENT_COPY.titleRequired);
     });
     it("accepts 200 and rejects 201 characters", () => {
       expect(eventInputSchema.safeParse(valid({ title: "a".repeat(200) })).success).toBe(true);
