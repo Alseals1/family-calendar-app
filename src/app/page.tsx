@@ -3,6 +3,12 @@ import { hasFamily } from "@/lib/auth/family";
 import { LOGIN_PATH, postAuthPath } from "@/lib/auth/redirects";
 import { createClient } from "@/lib/supabase/server";
 
+/**
+ * Always rendered per request: the landing page depends on the visitor's
+ * session, so it must never be prerendered at build time.
+ */
+export const dynamic = "force-dynamic";
+
 /** Renders nothing: it only picks the landing page for the signed-in user. */
 export default async function Home() {
   const supabase = await createClient();
