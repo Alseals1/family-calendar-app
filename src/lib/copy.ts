@@ -78,3 +78,23 @@ export const COLOR_NAMES: Record<MemberColorId, string> = {
   pink: "Pink",
   amber: "Amber",
 };
+
+export const EVENT_COPY = {
+  titleRequired: "Enter a title.",
+  titleTooLong: "Use 200 characters or fewer.",
+  descriptionTooLong: "Use 5000 characters or fewer.",
+  locationTooLong: "Use 300 characters or fewer.",
+  timeInvalid: "Enter a valid date and time.",
+  endBeforeStart: "End must be after start.",
+  allDayInvalid: "All-day events must start and end at midnight.",
+  visibilityInvalid: "Choose who can see this event.",
+  invalidMember: "Choose members of your family.",
+  notSignedIn: "Log in again to continue.",
+  noFamily: "Set up your family first.",
+  notFound: "This event no longer exists.",
+  forbidden: "You can only change your own events and family events.",
+  visibilityLocked: "Only the person who created this event can change who sees it.",
+  saveFailed: "We could not save the event. Try again.",
+  assignmentsFailed: "The event was saved, but its members could not be updated. Try again.",
+  deleteFailed: "We could not delete the event. Try again.",
+} as const;

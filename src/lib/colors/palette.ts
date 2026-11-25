@@ -25,3 +25,8 @@ export const MEMBER_COLOR_HEXES = MEMBER_COLORS.map((c) => c.hex) as unknown as 
   MemberColorHex,
   ...MemberColorHex[],
 ];
+
+/** Events with no member to take a color from: unassigned family events, unknown creators. */
+export const NEUTRAL_EVENT_COLOR = "#6b7280";
+export const TEXT_ON_DARK = "#ffffff";
+export const TEXT_ON_LIGHT = "#000000";

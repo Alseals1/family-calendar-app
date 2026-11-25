@@ -18,3 +18,18 @@ export async function hasFamily(
   if (error) throw new Error(error.message);
   return (data?.length ?? 0) > 0;
 }
+
+/** The id of the family the user is an adult member of, or null when they have none. */
+export async function myFamilyId(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("family_members")
+    .select("family_id")
+    .eq("user_id", userId)
+    .eq("member_type", "adult")
+    .limit(1);
+  if (error) throw new Error(error.message);
+  return data?.[0]?.family_id ?? null;
+}
