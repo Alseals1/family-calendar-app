@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { hasFamily } from "./family";
+import { hasFamily, myFamilyId } from "./family";
 
 type Result = { data: { id: string }[] | null; error: { message: string } | null };
 
@@ -56,5 +56,27 @@ describe("hasFamily", () => {
       ["member_type", "adult"],
     ]);
     expect(calls.limit).toBe(1);
+  });
+});
+
+describe("myFamilyId", () => {
+  it("returns the family id of the user's adult membership", async () => {
+    const { client, calls } = fakeClient({ data: [{ family_id: "fam-1" }] as never, error: null });
+    await expect(myFamilyId(client as never, "user-1")).resolves.toBe("fam-1");
+    expect(calls.select).toBe("family_id");
+    expect(calls.eq).toEqual([
+      ["user_id", "user-1"],
+      ["member_type", "adult"],
+    ]);
+  });
+
+  it("is null when the user has no family", async () => {
+    const { client } = fakeClient({ data: [], error: null });
+    await expect(myFamilyId(client as never, "user-1")).resolves.toBeNull();
+  });
+
+  it("throws when the query fails", async () => {
+    const { client } = fakeClient({ data: null, error: { message: "boom" } });
+    await expect(myFamilyId(client as never, "user-1")).rejects.toThrow("boom");
   });
 });
