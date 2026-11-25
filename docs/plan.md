@@ -119,6 +119,7 @@ All primary keys are `uuid default gen_random_uuid()`. All timestamps are `times
 - `my_family_id() → uuid`.
 
 These avoid recursive RLS on `family_members`.
+They live in the `private` schema: `authenticated` may use it and execute these three helpers only, and the API does not expose it, so they are not RPCs.
 
 ### RLS policies (summary)
 
@@ -131,6 +132,8 @@ These avoid recursive RLS on `family_members`.
 | events | `is_family_adult(family_id) and (created_by = auth.uid() or visibility <> 'private')` | `created_by = auth.uid() and is_family_adult(family_id)` | creator; any adult of the family for `family` events (D-03) | same as update |
 | event_assignments | `exists (select 1 from events where id = event_id)` (inherits the events policy, so private assignments stay hidden) | caller can update the event | — | caller can update the event |
 | storage `avatars` | family adults | path prefix = own family id | same | same |
+
+Update is column-limited for `authenticated` (anon has none): profiles `full_name`, `avatar_url`; families `name`; family_members `member_name`, `calendar_color`, `avatar_url`; family_invitations `status`. So use `update` with explicit columns on these tables, not supabase-js `upsert`. Avatar paths are `<family_id>/<file>` in the private `avatars` bucket (1 MiB, jpeg/png/webp).
 
 ### RPCs
 - `create_family(name, display_name, color) → family_id`: refuses if the caller already has a family.
