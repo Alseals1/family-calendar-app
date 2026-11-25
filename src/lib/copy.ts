@@ -1,3 +1,5 @@
+import type { MemberColorId } from "@/lib/colors/palette";
+
 export const APP_NAME = "Family Calendar";
 export const APP_DESCRIPTION = "A private calendar for your family.";
 
@@ -47,3 +49,32 @@ export const AUTH_COPY = {
   calendarHeading: "Calendar",
   logoutLabel: "Log out",
 } as const;
+
+export const FAMILY_COPY = {
+  onboardingIntro: "Name your family and choose how you appear on the calendar.",
+  familyNameLabel: "Family name",
+  displayNameLabel: "Your name",
+  colorLabel: "Your color",
+  submit: "Create family",
+  pending: "Creating family…",
+  familyNameRequired: "Enter a family name.",
+  familyNameTooLong: "Use 80 characters or fewer.",
+  displayNameRequired: "Enter your name.",
+  displayNameTooLong: "Use 80 characters or fewer.",
+  colorRequired: "Pick a color.",
+  createFailed: "We could not create the family. Try again.",
+  familyHeading: "Family",
+  adultsHeading: "Adults",
+  ownerLabel: "Owner",
+} as const;
+
+export const COLOR_NAMES: Record<MemberColorId, string> = {
+  blue: "Blue",
+  green: "Green",
+  orange: "Orange",
+  purple: "Purple",
+  red: "Red",
+  teal: "Teal",
+  pink: "Pink",
+  amber: "Amber",
+};

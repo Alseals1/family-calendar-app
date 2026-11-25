@@ -5,6 +5,7 @@ export const REGISTER_PATH = "/register";
 export const HOME_PATH = "/";
 export const ONBOARDING_PATH = "/onboarding";
 export const CALENDAR_PATH = "/calendar";
+export const FAMILY_PATH = "/family";
 export const CONFIRM_ERROR_PATH = "/login?error=confirm";
 export const FORGOT_PASSWORD_PATH = "/forgot-password";
 export const RESET_PASSWORD_PATH = "/reset-password";
