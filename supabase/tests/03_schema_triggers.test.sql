@@ -1,12 +1,10 @@
 -- T03: triggers (profile on signup, updated_at, immutable event owner) and
--- deny-all RLS: anon can read and write nothing, and authenticated can read
--- nothing in the four tables that have no policies yet. The events and
--- event_assignments policies are tested in 05_rls_events and
--- 06_privacy_scenarios. Made-up people only. Fixed UUIDs as in
--- 02_schema_constraints.
+-- deny-all RLS for anon: a visitor who is not signed in can read and write
+-- nothing. The T04 policies for signed-in users are tested in 04 to 08.
+-- Made-up people only. Fixed UUIDs as in 02_schema_constraints.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(20);
 
 -- Profile on signup
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -108,19 +106,6 @@ select ok(
   and (select count(*) from public.events) > 0
   and (select count(*) from public.event_assignments) > 0,
   'every table has rows before the RLS checks');
-
--- Deny-all on the tables without policies, as a signed-in adult who owns the rows
-set local role authenticated;
-set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}';
-
-select is((select count(*) from public.profiles), 0::bigint,
-  'authenticated cannot read profiles (no policies yet)');
-select is((select count(*) from public.families), 0::bigint,
-  'authenticated cannot read families (no policies yet)');
-select is((select count(*) from public.family_members), 0::bigint,
-  'authenticated cannot read family_members (no policies yet)');
-select is((select count(*) from public.family_invitations), 0::bigint,
-  'authenticated cannot read family_invitations (no policies yet)');
 
 -- Deny-all as a visitor who is not signed in
 set local role anon;

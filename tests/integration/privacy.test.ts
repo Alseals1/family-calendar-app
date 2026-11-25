@@ -160,6 +160,46 @@ describe("a user in another family", () => {
   });
 });
 
+describe("family tables across families", () => {
+  it("lets B see the three F1 members and F1's invitation", async () => {
+    const members = await b.client.from("family_members").select("id").eq("family_id", families.f1);
+    expect(members.error).toBeNull();
+    expect(members.data).toHaveLength(3);
+    const invitations = await b.client.from("family_invitations").select("id");
+    expect(invitations.error).toBeNull();
+    expect(invitations.data?.map((row) => row.id)).toEqual([families.invitation]);
+  });
+
+  it("gives C no F1 members, invitations or profiles", async () => {
+    const members = await c.client.from("family_members").select("id").eq("family_id", families.f1);
+    expect(members.error).toBeNull();
+    expect(members.data).toEqual([]);
+    const invitations = await c.client
+      .from("family_invitations")
+      .select("id")
+      .eq("family_id", families.f1);
+    expect(invitations.error).toBeNull();
+    expect(invitations.data).toEqual([]);
+    const profiles = await c.client.from("profiles").select("id").in("id", [a.id, b.id]);
+    expect(profiles.error).toBeNull();
+    expect(profiles.data).toEqual([]);
+  });
+
+  it("lets B see A's profile, because they share F1", async () => {
+    const { data, error } = await b.client.from("profiles").select("id").eq("id", a.id);
+    expect(error).toBeNull();
+    expect(data).toHaveLength(1);
+  });
+
+  it("does not let B move B's member row to F2", async () => {
+    const { error } = await b.client
+      .from("family_members")
+      .update({ family_id: families.f2 })
+      .eq("user_id", b.id);
+    expect(error?.code).toBe("42501");
+  });
+});
+
 describe("a visitor who is not signed in", () => {
   it("sees no events", async () => {
     const { data, error } = await anonClient().from("events").select("id");
